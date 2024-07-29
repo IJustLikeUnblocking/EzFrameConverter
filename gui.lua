@@ -2,7 +2,7 @@
 -- Version: 3.2
 
 -- Instances:
-
+local toolbar = plugin:CreateToolbar("EzFrame Converter")
 local EzFrameConverter = Instance.new("ScreenGui")
 local mainframe = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
@@ -113,3 +113,42 @@ tutorial.TextColor3 = Color3.fromRGB(255, 255, 255)
 tutorial.TextScaled = true
 tutorial.TextSize = 14.000
 tutorial.TextWrapped = true
+
+--Script generator
+convertbutton.MouseButton1Click:Connect(function()
+	-- Add this code inside the "convertbutton" TextButton event listener
+
+	local function convertAnimation(animation)
+		-- Get the keyframes from the animation
+		local keyframes = animation:GetKeyframes()
+
+		-- Create a new script inside ReplicatedStorage
+		local script = Instance.new("Script")
+		script.Name = "ConvertedAnimation"
+		script.Parent = game.ReplicatedStorage
+
+		-- Iterate through each keyframe and extract the CFrame data
+		for i, keyframe in ipairs(keyframes) do
+			local time = keyframe.Time
+			local cframe = keyframe.Value.CFrame
+
+			-- Add the CFrame data to the script
+			script.Source = script.Source .. string.format("wait(%f) -- Keyframe %d\n", time, i)
+			script.Source = script.Source .. string.format("game.Workspace.YourCharacter.HumanoidRootPart.CFrame = CFrame.new(%f, %f, %f)\n", cframe.X, cframe.Y, cframe.Z)
+
+			-- Add code to adjust other body parts' CFrames if needed
+		end
+
+		-- Open the script for editing
+		script:Edit()
+	end
+
+	-- Check if the player has selected/highlighted an animation
+	local selectedAnimation = game.Workspace:FindFirstChild("SelectedAnimation")
+	if selectedAnimation and selectedAnimation:IsA("Animation") then
+		convertAnimation(selectedAnimation)
+	else
+		-- No animation selected, show an error message
+		print("No animation selected. Please select an animation before converting.")
+	end
+end)
